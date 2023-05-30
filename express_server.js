@@ -6,7 +6,9 @@ app.set("view engine", "ejs")
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "9sm5xK": "http://www.google.com",
+  "sfdsfsdfsdf": "http://www.sdfsdfsdfgoogle.com",
+  "dddddd": "http://www.ddddddd.com",
 };
 
 app.get("/", (req, res) => {
@@ -22,6 +24,12 @@ app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
+
+app.get("/urls/:id", (req, res) => {
+  const templateVars = { id: req.params.id, longURL:"www.bing.com/test/lighthouse"};
+  res.render("urls_show", templateVars);
+});
+
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
