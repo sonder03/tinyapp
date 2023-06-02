@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 3000; // default port 8080
 
 function generateString(length) {
   const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -13,7 +13,6 @@ function generateString(length) {
     return result;
 }
 
-//console.log(generateString(6));
 
 
 app.set("view engine", "ejs")
@@ -60,10 +59,6 @@ app.post("/urls", (req, res) => {
 
   let newId = generateString(6);
   urlDatabase[newId]=req.body.longURL;
-
-  console.log(urlDatabase[newId])
-  console.log(req.body.longURL)
-
   res.redirect('urls/' + newId);
 
   //res.send("Ok"); // Respond with 'Ok' (we will replace this)
@@ -72,7 +67,16 @@ app.post("/urls", (req, res) => {
  app.get("/u/:id", (req, res) => {
  const longURL = urlDatabase[req.params.id]
  res.redirect(longURL)
- })
+ });
+
+ app.post("/urls/:id/delete", (req, res) =>{
+  delete urlDatabase[req.params.id] 
+  console.log("deleted url")
+  res.redirect("/urls")
+
+ });
+ 
+
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
@@ -86,7 +90,6 @@ app.get("/set", (req, res) => {
  app.get("/fetch", (req, res) => {
   res.send(`a = ${a}`);
  });
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
