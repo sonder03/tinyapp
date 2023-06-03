@@ -45,7 +45,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL:urlDatabase[req.params.id]};
-  console.log(templateVars)
+  //console.log(templateVars)
   res.render("urls_show", templateVars);
 });
 
@@ -55,7 +55,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
+  //console.log(req.body); // Log the POST request body to the console
 
   let newId = generateString(6);
   urlDatabase[newId]=req.body.longURL;
@@ -71,13 +71,21 @@ app.post("/urls", (req, res) => {
 
  app.post("/urls/:id/delete", (req, res) =>{
   delete urlDatabase[req.params.id] 
-  console.log("deleted url")
+ // console.log("deleted url")
   res.redirect("/urls")
 
  });
  
+ app.post("/urls/:id/edit", (req, res) =>{
+  const {id} = req.params
+  const longURL = req.body.editedUrl;
+  console.log("id:", id)
+  console.log(longURL)
+  urlDatabase[id]= longURL
 
-
+  res.redirect("/urls");
+});
+ 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
