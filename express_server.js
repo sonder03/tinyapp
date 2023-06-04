@@ -1,6 +1,16 @@
 const express = require("express");
+const morgan = require('morgan');
+
 const app = express();
-const PORT = 3000; // default port 8080
+const PORT = 3000; 
+let cookieParser = require('cookie-parser');
+
+
+app.set("view engine", "ejs")
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+
 
 function generateString(length) {
   const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -12,11 +22,6 @@ function generateString(length) {
 
     return result;
 }
-
-
-
-app.set("view engine", "ejs")
-app.use(express.urlencoded({ extended: true }));
 
 
 const urlDatabase = {
@@ -35,16 +40,21 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+const templateVars = { urls: urlDatabase, username: req.cookies["username"]}
+  
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {username: req.cookies["username"]}
+  res.render("urls_new", templateVars);
+ 
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL:urlDatabase[req.params.id]};
+  const templateVars = {username: req.cookies["username"], id: req.params.id, 
+    longURL:urlDatabase[req.params.id],
+    };
   //console.log(templateVars)
   res.render("urls_show", templateVars);
 });
@@ -59,9 +69,9 @@ app.post("/urls", (req, res) => {
 
   let newId = generateString(6);
   urlDatabase[newId]=req.body.longURL;
-  res.redirect('urls/' + newId);
+  res.redirect('urls/');  //+ newId
 
-  //res.send("Ok"); // Respond with 'Ok' (we will replace this)
+
 });
 
  app.get("/u/:id", (req, res) => {
@@ -85,6 +95,22 @@ app.post("/urls", (req, res) => {
 
   res.redirect("/urls");
 });
+
+
+app.post("/login", (req, res) =>{
+ const {username} = req.body;
+ res.cookie('username', username)
+  res.redirect("/urls")
+
+ });
+ app.post("/logout", (req, res) =>{
+  const {username} = req.body;
+  res.clearCookie('username')
+   res.redirect("/urls")
+ 
+  });
+ 
+
  
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
