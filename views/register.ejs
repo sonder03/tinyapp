@@ -1,9 +1,35 @@
-<!-- register.ejs -->
-<form action="/register" method="POST" novalidate>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      crossorigin="anonymous"
+    />
+    <title>URL - TinyApp Example</title>
+  </head>
+
+  <body>
+    <%- include('partials/_header')%>
 
   <form action="/register" method="POST" novalidate>
-    <input type="text" name="email" placeholder="Email">
-    <input type="password" name="password" placeholder="Password">
+    <br>
+    <h2>Create Account</h1>
+    <br>
+    <h3><small>Email Address</small></h3>
+    <input type="email" name="email" required placeholder="Email">
+     <br>
+     <h3><small>Password</small></h3>
+     <input type="password" name="password" required placeholder="Password">
+    <br>
+    <br>
     <button type="submit">Register</button>
   </form>
 
