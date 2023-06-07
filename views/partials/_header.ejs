@@ -16,54 +16,19 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-       
-        <% if (username) { %>
-          <div class="nav-item nav-link">Logged in as <%= username %></div>
+      
+        
+
+        <% if (user) { %>
+          <div class="nav-item nav-link">Logged in as <%= user.email %></div>
           <form class="form-inline" action="/logout" method="POST">
             <button type="submit" class="btn btn-primary">Log Out</button>
           </form>
         <% } else { %>
-          <form class="form-inline" action="/login" method="POST">
-            <div class="form-group mb-2">
-              <input
-                class="form-control"
-                type="text"
-                name="username"
-                placeholder="Username"
-                style="width: 300px; margin: 1em"
-              />
-              <button type="login" class="btn btn-primary">Login</button>
-            </div>
-          </form>
+       
+          <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+          <a class="nav-item nav-link" href="/register">Register</a>
         <% } %>
-
-
-
-
-
-
-
-        <!-- <% if (username) { %>
-          <span>Logged in as: <%= username %></span>
-          <% } %>
-          
-
-
-        <form class="form-inline" action="/login" method="POST">
-        <div class="form-group mb-2">
-           <input
-            class="form-control"
-            type="text"
-            name="username"
-            placeholder="username"
-            style="width: 300px; margin: 1em"
-          />
-          <button type="login" class="btn btn-primary">Login</button>
-
-        
-        </div>
-      </form> -->
-
       </div>
     </div>
   </nav>
