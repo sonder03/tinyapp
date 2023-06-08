@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const session = require('express-session');
 
 const app = express();
-const PORT = 3000; 
+const PORT = 3000;
 let cookieParser = require('cookie-parser');
 
 
@@ -19,14 +19,14 @@ app.use(session({
 
 
 function generateString(length) {
-  const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    const charactersLength = characters.length;
-    for ( let i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
 
-    return result;
+  return result;
 }
 
 function getUserByEmail(email) {
@@ -41,13 +41,23 @@ function getUserByEmail(email) {
 
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-  "8an1yZ": "http://https://www.amazon.ca/",
- };
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userId: "userRandomID", },
+  "9sm5xK": { longURL: "http://www.google.com", userId: "userRandomID", },
+  "8an1yZ": { longURL: "http://https://www.amazon.ca/", userId: "userRandomID", },
+  "b6UTxQ": { longURL: "https://www.tsn.ca", userId: "aJ48lW", },
+  "i3BoGr": { longURL: "https://www.google.ca", userId: "aJ48lW" },
+};
+
+
+
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com",
+//   "8an1yZ": "http://https://www.amazon.ca/",
+//  };
 
 //Users database
- const users = {
+const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
@@ -98,9 +108,9 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     user: user,
     id: req.params.id,
-    longURL: urlDatabase[req.params.id]
+    longURL: urlDatabase[req.params.id].longURL
   };
-    res.render("urls_show", templateVars);
+  res.render("urls_show", templateVars);
 });
 
 app.get("/login", (req, res) => {
@@ -123,7 +133,8 @@ app.post("/urls", (req, res) => {
     return;
   }
   let newId = generateString(6);
-  urlDatabase[newId]=req.body.longURL;
+  urlDatabase[newId] = {};
+  urlDatabase[newId].longURL = req.body.longURL;
   res.redirect('urls/');  //+ newId
 });
 
@@ -183,9 +194,9 @@ app.get("/u/:id", (req, res) => {
 });
 
 
- 
- app.post("/urls/:id/delete", (req, res) =>{
-  delete urlDatabase[req.params.id] 
+
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id]
   const user = users[req.session.user_id];
   if (!user) {
     res.status(403).send("You must be logged in to shorten URLs.");
@@ -193,67 +204,67 @@ app.get("/u/:id", (req, res) => {
   }
   res.redirect("/urls")
 
- });
- 
- app.post("/urls/:id/edit", (req, res) =>{
+});
+
+app.post("/urls/:id/edit", (req, res) => {
   const user = users[req.session.user_id];
-  const {id} = req.params
+  const { id } = req.params
   const longURL = req.body.editedUrl;
   console.log("id:", id)
   console.log(longURL)
-  urlDatabase[id]= longURL
+  urlDatabase[id].longURL = longURL
 
   res.redirect("/urls");
 });
 
- app.post("/logout", (req, res) =>{
+app.post("/logout", (req, res) => {
   req.session.user_id = null;
   res.clearCookie('user_id')
-  res.redirect("/login")  
- 
-  });
+  res.redirect("/login")
+
+});
 
 
-  app.get("/register", (req, res) => {
-    const user = users[req.session.user_id];
-  res.render("register", { user: req.session.user_id ? user : null }); 
+app.get("/register", (req, res) => {
+  const user = users[req.session.user_id];
+  res.render("register", { user: req.session.user_id ? user : null });
 });
 
 /* **********Register        */
 
-  app.post("/register", (req, res) => {
-    const { email, password } = req.body;
-        // Check if email or password are empty strings
-    if (!email || !password) {
-      res.status(400).send("Email or password cannot be empty");
-      return;
-    }
-  
-    // Check if email already exists in users object
-    if (getUserByEmail(email)) {
-      res.status(400).send("Email already registered");
-      return;
-    }
-  
-    //  a new user object a
-    const userId = generateString(6);
-    const newUser = {
-      id: userId,
-      email,
-      password: bcrypt.hashSync(password, 10) 
-    };
-    users[userId] = newUser;
+app.post("/register", (req, res) => {
+  const { email, password } = req.body;
+  // Check if email or password are empty strings
+  if (!email || !password) {
+    res.status(400).send("Email or password cannot be empty");
+    return;
+  }
 
-    console.log(users)
-  
-    // Set user_id cookie and redirect to /urls
-    req.session.user_id = userId;
-    res.redirect("/urls");
-  });
+  // Check if email already exists in users object
+  if (getUserByEmail(email)) {
+    res.status(400).send("Email already registered");
+    return;
+  }
+
+  //  a new user object a
+  const userId = generateString(6);
+  const newUser = {
+    id: userId,
+    email,
+    password: bcrypt.hashSync(password, 10)
+  };
+  users[userId] = newUser;
+
+  console.log(users)
+
+  // Set user_id cookie and redirect to /urls
+  req.session.user_id = userId;
+  res.redirect("/urls");
+});
 
 
 ///////////
- 
+
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
@@ -261,11 +272,11 @@ app.get("/hello", (req, res) => {
 app.get("/set", (req, res) => {
   const a = 1;
   res.send(`a = ${a}`);
- });
- 
- app.get("/fetch", (req, res) => {
+});
+
+app.get("/fetch", (req, res) => {
   res.send(`a = ${a}`);
- });
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
