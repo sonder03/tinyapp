@@ -5,17 +5,26 @@ const session = require('express-session');
 
 const app = express();
 const PORT = 3000;
-let cookieParser = require('cookie-parser');
+//let cookieParser = require('cookie-parser');
+var cookieSession = require('cookie-session')
 
 
 app.set("view engine", "ejs")
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(session({
-  secret: 'secret-key', // Add your own secret key here
-  resave: false,
-  saveUninitialized: true
-}));
+// app.use(cookieParser());
+// app.use(session({
+//   secret: 'secret-key', // Add your own secret key here
+//   resave: false,
+//   saveUninitialized: true
+// }));
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ["testcookie"],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 
 function generateString(length) {
@@ -103,7 +112,8 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const user = users[req.session.user_id];
+  const userId = req.session.user_id;
+  const user = users[userId];
 
   //console.log("/urls : "+user);
 
@@ -134,18 +144,26 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const user = users[req.session.user_id];
+  const userId = req.session.user_id;
+  const user = users[userId];
+
+  //const id = req.params.id;
+  const url = urlDatabase[req.params.id];
 
 
-
-  const id = req.params.id;
-  const url = urlDatabase[id];
+  if (!user) {
+    res.send("<h1>Please log in or register first.</h1>");
+    return;
+  }
 
   if (!url) {
     res.status(404).send("<h1>URL not found</h1>");
     return;
   }
-
+  if (url.userId !== userId) {
+    res.send("<h1>You don't have permission to access this URL.</h1>");
+    return;
+  }
 
 
   const templateVars = {
@@ -299,7 +317,7 @@ app.post("/register", (req, res) => {
     return;
   }
 
-  //  a new user object a
+  //  a new user object with hashedPassword
   const hashedPassword = bcrypt.hashSync(password, 10);
   const userId = generateString(6);
   const newUser = {
