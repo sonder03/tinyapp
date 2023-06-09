@@ -2,6 +2,7 @@ const express = require("express");
 const morgan = require('morgan');
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
+const helpers = require('./helpers.js');
 
 const app = express();
 const PORT = 3000;
@@ -38,15 +39,9 @@ function generateString(length) {
   return result;
 }
 
-function getUserByEmail(email) {
-  for (const userId in users) {
-    const user = users[userId];
-    if (user.email === email) {
-      return user;
-    }
-  }
-  return null;
-}
+
+
+
 
 function urlsForUser(userId) {
   const userURLs = {};
@@ -219,7 +214,7 @@ app.get("/register", (req, res) => {
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-  const user = getUserByEmail(email);
+  const user = helpers.getUserByEmail(email,users);
 
   if (!user) {
     return res.status(403).send("Invalid email or password");
@@ -312,7 +307,7 @@ app.post("/register", (req, res) => {
   }
 
   // Check if email already exists in users object
-  if (getUserByEmail(email)) {
+  if (helpers.getUserByEmail(email, users)) {
     res.status(400).send("Email already registered");
     return;
   }
