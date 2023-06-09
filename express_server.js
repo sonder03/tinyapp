@@ -39,16 +39,32 @@ function getUserByEmail(email) {
   return null;
 }
 
+function urlsForUser(userId) {
+  const userURLs = {};
 
-const urlDatabase = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userId: "userRandomID", },
-  "9sm5xK": { longURL: "http://www.google.com", userId: "userRandomID", },
-  "8an1yZ": { longURL: "http://https://www.amazon.ca/", userId: "userRandomID", },
-  "b6UTxQ": { longURL: "https://www.tsn.ca", userId: "aJ48lW", },
-  "i3BoGr": { longURL: "https://www.google.ca", userId: "aJ48lW" },
-};
+  for (const urlId in urlDatabase) {
+    const url = urlDatabase[urlId];
+
+    if (url.userId === userId) {
+      userURLs[urlId] = url;
+    }
+  }
+
+  return userURLs;
+}
 
 
+const urlDatabase = {};
+const users = {};
+
+
+// const urlDatabase = {
+//   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userId: "userRandomID", },
+//   "9sm5xK": { longURL: "http://www.google.com", userId: "userRandomID", },
+//   "8an1yZ": { longURL: "http://https://www.amazon.ca/", userId: "userRandomID", },
+//   "b6UTxQ": { longURL: "https://www.tsn.ca", userId: "aJ48lW", },
+//   "i3BoGr": { longURL: "https://www.google.ca", userId: "aJ48lW" },
+// };
 
 // const urlDatabase = {
 //   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -57,24 +73,24 @@ const urlDatabase = {
 //  };
 
 //Users database
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "123",
-  },
+// const users = {
+//   userRandomID: {
+//     id: "userRandomID",
+//     email: "user@example.com",
+//     password: "purple-monkey-dinosaur",
+//   },
+//   user2RandomID: {
+//     id: "user2RandomID",
+//     email: "user2@example.com",
+//     password: "123",
+//   },
 
-  user3RandomID: {
-    id: "user3RandomID",
-    email: "rav@rac.com",
-    password: "111",
-  }
-};
+//   user3RandomID: {
+//     id: "user3RandomID",
+//     email: "rav@rac.com",
+//     password: "111",
+//   }
+// };
 
 
 app.get("/", (req, res) => {
@@ -88,8 +104,22 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const user = users[req.session.user_id];
+
+  //console.log("/urls : "+user);
+
+  if (!user) {
+      res.status(403).send("You must be logged in to see the URLs.");
+      return;   }
+
+   let filteredUrls = urlsForUser(req.session.user_id);
+
+
+   console.log(req.session.user_id);
+   console.log(filteredUrls);
+   console.log(urlDatabase);
+
   const templateVars = {
-    urls: urlDatabase,
+    urls: filteredUrls,
     user: user
   };
   res.render("urls_index", templateVars);
@@ -105,6 +135,19 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const user = users[req.session.user_id];
+
+
+
+  const id = req.params.id;
+  const url = urlDatabase[id];
+
+  if (!url) {
+    res.status(404).send("<h1>URL not found</h1>");
+    return;
+  }
+
+
+
   const templateVars = {
     user: user,
     id: req.params.id,
@@ -135,6 +178,7 @@ app.post("/urls", (req, res) => {
   let newId = generateString(6);
   urlDatabase[newId] = {};
   urlDatabase[newId].longURL = req.body.longURL;
+  urlDatabase[newId].userId = req.session.user_id;
   res.redirect('urls/');  //+ newId
 });
 
@@ -185,7 +229,8 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  
+  const longURL = urlDatabase[req.params.id].longURL;
   if (!longURL) {
     res.status(404).send("The requested short URL does not exist.");
     return;
@@ -214,6 +259,7 @@ app.post("/urls/:id/edit", (req, res) => {
   console.log(longURL)
   urlDatabase[id].longURL = longURL
 
+  
   res.redirect("/urls");
 });
 
