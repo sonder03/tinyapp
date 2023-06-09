@@ -1,6 +1,6 @@
 const express = require("express");
 const morgan = require('morgan');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const session = require('express-session');
 
 const app = express();
@@ -72,7 +72,7 @@ const users = {};
 //   "8an1yZ": "http://https://www.amazon.ca/",
 //  };
 
-//Users database
+// Users database
 // const users = {
 //   userRandomID: {
 //     id: "userRandomID",
@@ -211,6 +211,13 @@ app.post("/login", (req, res) => {
     return res.status(403).send("Invalid email or password");
   }
 
+    // Compare the provided password with the hashed password using bcrypt.compareSync
+    const passwordMatch = bcrypt.compareSync(password, user.password);
+
+    if (!passwordMatch) {
+      return res.status(403).send('Invalid email or password');
+    }
+
   req.session.user_id = user.id;
   res.redirect("/urls");
 });
@@ -293,11 +300,12 @@ app.post("/register", (req, res) => {
   }
 
   //  a new user object a
+  const hashedPassword = bcrypt.hashSync(password, 10);
   const userId = generateString(6);
   const newUser = {
     id: userId,
     email,
-    password: bcrypt.hashSync(password, 10)
+    password: hashedPassword,
   };
   users[userId] = newUser;
 
