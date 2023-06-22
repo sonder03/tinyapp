@@ -20,17 +20,12 @@
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>  
-
-      
-        <form method="POST" action="/urls/<%= id %>/edit">
+          <form method="POST" action="/urls/<%= id %>">
           <label for="edit">Edit</label><br>
           <input type="text" value="<%= longURL %>" id="editedUrl" name="editedUrl">
           <button type="submit" class="btn btn-primary">submit</button>
           </form> 
-        
-                              
       </div>
-
       <!-- Bootstrap JS -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
